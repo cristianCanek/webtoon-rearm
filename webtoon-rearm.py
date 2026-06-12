@@ -9,13 +9,14 @@ EXTENSIONS = {".webp", ".jpg", ".jpeg", ".png"}
 
 def main():
 
-    if len(sys.argv) < 2 or len(sys.argv) > 4:
-        print(f"Usage: {sys.argv[0]} <images_input_path> [output_path] [output.png]")
+    if len(sys.argv) < 2 or len(sys.argv) > 5:
+        print(f"Usage: {sys.argv[0]} <images_input_path> [output_path] [output.png] [width]")
         sys.exit(1)
 
     input_dir = Path(sys.argv[1])
     output_dir = Path(sys.argv[2]) if len(sys.argv) >= 3 else input_dir
-    output_filename = sys.argv[3] if len(sys.argv) == 4 else "output.png"
+    output_filename = sys.argv[3] if len(sys.argv) >= 4 else "output.png"
+    custom_width = int(sys.argv[4]) if len(sys.argv) == 5 else None
 
     if not input_dir.exists():
         raise RuntimeError(f"Error: Directory does not exist '{input_dir}'")
@@ -41,8 +42,8 @@ def main():
         print(f"Loading: {path.name} - Size: {img.width}x{img.height}")
         images.append(img)
 
-    # Use the maximum width found
-    target_width = max(img.width for img in images)
+    # Use custom width if provided, otherwise use the maximum width found
+    target_width = custom_width if custom_width else max(img.width for img in images)
 
     resized_images = []
 
@@ -59,6 +60,7 @@ def main():
     total_height = sum(img.height for img in resized_images)
 
     print(f"Final size: {target_width}x{total_height}")
+    print("Processing and saving...")
 
     final_image = Image.new("RGB", (target_width, total_height), "white")
 
